@@ -6,7 +6,7 @@ homepage = 'https://logion.network'
 license = 'Apache-2.0'
 name = 'pallet-logion-vault'
 repository = 'https://github.com/logion-network/pallet-logion-vault'
-version = '0.1.0'
+version = '0.1.1'
 keywords = ['logion']
 
 [package.metadata.docs.rs]

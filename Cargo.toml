@@ -37,6 +37,7 @@ std = [
 	'frame-benchmarking/std',
 	'pallet-multisig/std',
 	'serde/std',
+	'sp-runtime/std',
 	'sp-std/std',
 ]
 runtime-benchmarks = [

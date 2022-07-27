@@ -8,19 +8,33 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
+use frame_support::traits::WrapperKeepOpaque;
+
+pub type OpaqueCall<T> = WrapperKeepOpaque<<T as Config>::Call>;
+
 #[frame_support::pallet]
 pub mod pallet {
+	use super::*;
 	use frame_system::pallet_prelude::*;
 	use frame_support::{
-		dispatch::DispatchResultWithPostInfo,
-		pallet_prelude::*
+		dispatch::{DispatchResultWithPostInfo, PostDispatchInfo, GetDispatchInfo},
+		pallet_prelude::*,
 	};
 	use logion_shared::{MultisigApproveAsMultiCallFactory, MultisigAsMultiCallFactory, IsLegalOfficer};
-	use frame_support::traits::{Vec, UnfilteredDispatchable};
-	use pallet_multisig::{WeightInfo, Timepoint, OpaqueCall};
+	use frame_support::traits::UnfilteredDispatchable;
+	use frame_support::dispatch::Vec;
+	use pallet_multisig::{WeightInfo, Timepoint};
+	use sp_runtime::traits::Dispatchable;
+	use sp_std::convert::TryInto;
 
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
+
+		/// The overarching call type.
+		type Call: Parameter
+			+ Dispatchable<Origin = Self::Origin, PostInfo = PostDispatchInfo>
+			+ GetDispatchInfo
+			+ From<frame_system::Call<Self>>;
 
 		/// Implementation of multisig "approve as multi"
 		type MultisigApproveAsMultiCallFactory: MultisigApproveAsMultiCallFactory<Self::Origin, Self::AccountId, Timepoint<Self::BlockNumber>>;
@@ -95,7 +109,7 @@ pub mod pallet {
 		#[pallet::weight({
 			// Weight computation comes from multisig pallet
 			let s = other_signatories.len() as u32;
-			let z = call.len() as u32;
+			let z = call.encoded_len() as u32;
 
 			T::WeightInfo::as_multi_create(s, z)
 			.max(T::WeightInfo::as_multi_create_store(s, z))
@@ -106,7 +120,7 @@ pub mod pallet {
 		pub fn approve_call(
 			origin: OriginFor<T>,
 			other_signatories: Vec<T::AccountId>,
-			call: OpaqueCall,
+			call: OpaqueCall<T>,
 			timepoint: Timepoint<T::BlockNumber>,
 			max_weight: Weight,
 		) -> DispatchResultWithPostInfo {
@@ -138,7 +152,7 @@ pub mod pallet {
 		fn dispatch_as_multi(
 			origin: OriginFor<T>,
 			other_signatories: Vec<T::AccountId>,
-			call: OpaqueCall,
+			call: OpaqueCall<T>,
 			timepoint: Timepoint<T::BlockNumber>,
 			max_weight: Weight,
 		) -> DispatchResultWithPostInfo {
@@ -146,7 +160,7 @@ pub mod pallet {
 					2,
 					other_signatories,
 					Some(timepoint),
-					call,
+					Vec::from(call.encoded()),
 					false,
 					max_weight
 			);

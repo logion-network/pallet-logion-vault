@@ -7,6 +7,7 @@ use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup}, testing::Header,
 };
 use frame_system as system;
+use sp_std::convert::{TryInto, TryFrom};
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -17,8 +18,8 @@ frame_support::construct_runtime!(
 		NodeBlock = Block,
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
-		System: frame_system::{Module, Call, Config, Storage, Event<T>},
-		Vault: pallet_logion_vault::{Module, Call, Storage, Event<T>},
+		System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+		Vault: pallet_logion_vault::{Pallet, Call, Storage, Event<T>},
 	}
 );
 
@@ -28,7 +29,7 @@ parameter_types! {
 }
 
 impl system::Config for Test {
-	type BaseCallFilter = ();
+	type BaseCallFilter = frame_support::traits::Everything;
 	type BlockWeights = ();
 	type BlockLength = ();
 	type DbWeight = ();
@@ -50,6 +51,8 @@ impl system::Config for Test {
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();
 	type SS58Prefix = SS58Prefix;
+	type OnSetCode = ();
+	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
 pub struct CreateRecoveryCallFactoryMock;
@@ -63,7 +66,7 @@ impl MultisigApproveAsMultiCallFactory<<Test as system::Config>::Origin, <Test a
         _call_hash: [u8; 32],
         _max_weight: Weight
 	) -> Self::Call {
-        Call::System(frame_system::Call::remark(Vec::from([0u8])))
+        Call::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
     }
 }
 
@@ -79,7 +82,7 @@ impl MultisigAsMultiCallFactory<<Test as system::Config>::Origin, <Test as syste
         _store_call: bool,
         _max_weight: Weight,
 	) -> Self::Call {
-        Call::System(frame_system::Call::remark(Vec::from([0u8])))
+        Call::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
     }
 }
 
@@ -98,6 +101,7 @@ impl IsLegalOfficer<<Test as system::Config>::AccountId> for IsLegalOfficerMock 
 }
 
 impl pallet_logion_vault::Config for Test {
+	type Call = Call;
 	type MultisigApproveAsMultiCallFactory = CreateRecoveryCallFactoryMock;
 	type MultisigAsMultiCallFactory = MultisigAsMultiCallFactoryMock;
 	type IsLegalOfficer = IsLegalOfficerMock;

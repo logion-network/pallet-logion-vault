@@ -33,8 +33,8 @@ impl system::Config for Test {
 	type BlockWeights = ();
 	type BlockLength = ();
 	type DbWeight = ();
-	type Origin = Origin;
-	type Call = Call;
+	type RuntimeOrigin = RuntimeOrigin;
+	type RuntimeCall = RuntimeCall;
 	type Index = u64;
 	type BlockNumber = u64;
 	type Hash = H256;
@@ -42,7 +42,7 @@ impl system::Config for Test {
 	type AccountId = u64;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = Header;
-	type Event = Event;
+	type RuntimeEvent = RuntimeEvent;
 	type BlockHashCount = BlockHashCount;
 	type Version = ();
 	type PalletInfo = PalletInfo;
@@ -56,8 +56,8 @@ impl system::Config for Test {
 }
 
 pub struct CreateRecoveryCallFactoryMock;
-impl MultisigApproveAsMultiCallFactory<<Test as system::Config>::Origin, <Test as system::Config>::AccountId, Timepoint<<Test as system::Config>::BlockNumber>> for CreateRecoveryCallFactoryMock {
-    type Call = Call;
+impl MultisigApproveAsMultiCallFactory<<Test as system::Config>::RuntimeOrigin, <Test as system::Config>::AccountId, Timepoint<<Test as system::Config>::BlockNumber>> for CreateRecoveryCallFactoryMock {
+    type Call = RuntimeCall;
 
     fn build_approve_as_multi_call(
 		_threshold: u16,
@@ -66,13 +66,13 @@ impl MultisigApproveAsMultiCallFactory<<Test as system::Config>::Origin, <Test a
         _call_hash: [u8; 32],
         _max_weight: Weight
 	) -> Self::Call {
-        Call::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
+        RuntimeCall::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
     }
 }
 
 pub struct MultisigAsMultiCallFactoryMock;
-impl MultisigAsMultiCallFactory<<Test as system::Config>::Origin, <Test as system::Config>::AccountId, Timepoint<<Test as system::Config>::BlockNumber>> for MultisigAsMultiCallFactoryMock {
-    type Call = Call;
+impl MultisigAsMultiCallFactory<<Test as system::Config>::RuntimeOrigin, <Test as system::Config>::AccountId, Timepoint<<Test as system::Config>::BlockNumber>> for MultisigAsMultiCallFactoryMock {
+    type Call = RuntimeCall;
 
     fn build_as_multi_call(
 		_threshold: u16,
@@ -82,7 +82,7 @@ impl MultisigAsMultiCallFactory<<Test as system::Config>::Origin, <Test as syste
         _store_call: bool,
         _max_weight: Weight,
 	) -> Self::Call {
-        Call::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
+        RuntimeCall::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
     }
 }
 
@@ -101,11 +101,11 @@ impl IsLegalOfficer<<Test as system::Config>::AccountId> for IsLegalOfficerMock 
 }
 
 impl pallet_logion_vault::Config for Test {
-	type Call = Call;
+	type RuntimeCall = RuntimeCall;
 	type MultisigApproveAsMultiCallFactory = CreateRecoveryCallFactoryMock;
 	type MultisigAsMultiCallFactory = MultisigAsMultiCallFactoryMock;
 	type IsLegalOfficer = IsLegalOfficerMock;
-	type Event = Event;
+	type RuntimeEvent = RuntimeEvent;
 	type WeightInfo = ();
 }
 

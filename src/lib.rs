@@ -10,7 +10,7 @@ mod tests;
 
 use frame_support::traits::WrapperKeepOpaque;
 
-pub type OpaqueCall<T> = WrapperKeepOpaque<<T as Config>::Call>;
+pub type OpaqueCall<T> = WrapperKeepOpaque<<T as Config>::RuntimeCall>;
 
 #[frame_support::pallet]
 pub mod pallet {
@@ -31,16 +31,16 @@ pub mod pallet {
 	pub trait Config: frame_system::Config {
 
 		/// The overarching call type.
-		type Call: Parameter
-			+ Dispatchable<Origin = Self::Origin, PostInfo = PostDispatchInfo>
+		type RuntimeCall: Parameter
+			+ Dispatchable<RuntimeOrigin = Self::RuntimeOrigin, PostInfo = PostDispatchInfo>
 			+ GetDispatchInfo
 			+ From<frame_system::Call<Self>>;
 
 		/// Implementation of multisig "approve as multi"
-		type MultisigApproveAsMultiCallFactory: MultisigApproveAsMultiCallFactory<Self::Origin, Self::AccountId, Timepoint<Self::BlockNumber>>;
+		type MultisigApproveAsMultiCallFactory: MultisigApproveAsMultiCallFactory<Self::RuntimeOrigin, Self::AccountId, Timepoint<Self::BlockNumber>>;
 
 		/// Implementation of multisig "as multi"
-		type MultisigAsMultiCallFactory: MultisigAsMultiCallFactory<Self::Origin, Self::AccountId, Timepoint<Self::BlockNumber>>;
+		type MultisigAsMultiCallFactory: MultisigAsMultiCallFactory<Self::RuntimeOrigin, Self::AccountId, Timepoint<Self::BlockNumber>>;
 
 		/// Query for checking that a signer is a legal officer
 		type IsLegalOfficer: IsLegalOfficer<Self::AccountId>;
@@ -49,7 +49,7 @@ pub mod pallet {
 		type WeightInfo: WeightInfo;
 
 		/// The overarching event type.
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 
 	#[pallet::pallet]

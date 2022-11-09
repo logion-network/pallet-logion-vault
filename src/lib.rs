@@ -8,10 +8,6 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
-use frame_support::traits::WrapperKeepOpaque;
-
-pub type OpaqueCall<T> = WrapperKeepOpaque<<T as Config>::RuntimeCall>;
-
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
@@ -118,7 +114,7 @@ pub mod pallet {
 		pub fn approve_call(
 			origin: OriginFor<T>,
 			other_signatories: Vec<T::AccountId>,
-			call: OpaqueCall<T>,
+			call: Box<<<T as pallet::Config>::MultisigAsMultiCallFactory as MultisigAsMultiCallFactory<T::RuntimeOrigin, T::AccountId, Timepoint<T::BlockNumber>>>::Call>,
 			timepoint: Timepoint<T::BlockNumber>,
 			max_weight: Weight,
 		) -> DispatchResultWithPostInfo {
@@ -150,7 +146,7 @@ pub mod pallet {
 		fn dispatch_as_multi(
 			origin: OriginFor<T>,
 			other_signatories: Vec<T::AccountId>,
-			call: OpaqueCall<T>,
+			call: Box<<<T as pallet::Config>::MultisigAsMultiCallFactory as MultisigAsMultiCallFactory<T::RuntimeOrigin, T::AccountId, Timepoint<T::BlockNumber>>>::Call>,
 			timepoint: Timepoint<T::BlockNumber>,
 			max_weight: Weight,
 		) -> DispatchResultWithPostInfo {
@@ -158,8 +154,7 @@ pub mod pallet {
 					2,
 					other_signatories,
 					Some(timepoint),
-					Vec::from(call.encoded()),
-					false,
+					call,
 					max_weight
 			);
 			call.dispatch_bypass_filter(origin)

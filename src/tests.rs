@@ -1,5 +1,4 @@
 use crate::{mock::*, Error};
-use frame_support::traits::WrapperKeepOpaque;
 use frame_support::weights::Weight;
 use frame_support::{assert_err, assert_ok};
 use sp_runtime::traits::BlakeTwo256;
@@ -40,7 +39,7 @@ fn it_fails_requesting_call_if_not_all_legal_officers() {
 #[test]
 fn it_approves_call_if_two_other_signatories() {
 	new_test_ext().execute_with(|| {
-		let call = WrapperKeepOpaque::from_encoded("call-bytes".as_bytes().to_vec());
+		let call = Box::new(RuntimeCall::System(frame_system::Call::remark{ remark : Vec::from([0u8]) }));
 		let timepoint = Default::default();
 		assert_ok!(Vault::approve_call(RuntimeOrigin::signed(LEGAL_OFFICER1), vec![USER_ID, LEGAL_OFFICER2], call, timepoint, Weight::from_ref_time(10000)));
 	});

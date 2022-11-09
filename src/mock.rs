@@ -78,11 +78,10 @@ impl MultisigAsMultiCallFactory<<Test as system::Config>::RuntimeOrigin, <Test a
 		_threshold: u16,
         _other_signatories: Vec<<Test as system::Config>::AccountId>,
         _maybe_timepoint: Option<Timepoint<<Test as system::Config>::BlockNumber>>,
-        _call: Vec<u8>,
-        _store_call: bool,
+        _call: Box<Self::Call>,
         _max_weight: Weight,
 	) -> Self::Call {
-        RuntimeCall::System(frame_system::Call::remark{ remark : Vec::from([0u8]) })
+        *_call
     }
 }
 

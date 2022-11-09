@@ -21,7 +21,7 @@ pub mod pallet {
 	use frame_support::dispatch::Vec;
 	use pallet_multisig::{WeightInfo, Timepoint};
 	use sp_runtime::traits::Dispatchable;
-	use sp_std::convert::TryInto;
+	use sp_std::{convert::TryInto,boxed::Box};
 
 	#[pallet::config]
 	pub trait Config: frame_system::Config {

@@ -81,9 +81,8 @@ pub mod pallet {
 			let s = legal_officers.len() as u32;
 
 			T::WeightInfo::approve_as_multi_create(s)
-			.max(T::WeightInfo::approve_as_multi_approve(s))
-			.max(T::WeightInfo::approve_as_multi_complete(s))
-			.saturating_add(*max_weight)
+				.max(T::WeightInfo::approve_as_multi_approve(s))
+				.saturating_add(*max_weight)
 		})]
 		pub fn request_call(
 			origin: OriginFor<T>,
@@ -109,10 +108,9 @@ pub mod pallet {
 		#[pallet::weight({
 			// Weight computation comes from multisig pallet
 			let s = other_signatories.len() as u32;
-			let z = call.encoded_len() as u32;
+			let z = call.using_encoded(|d| d.len()) as u32;
 
 			T::WeightInfo::as_multi_create(s, z)
-			.max(T::WeightInfo::as_multi_create_store(s, z))
 			.max(T::WeightInfo::as_multi_approve(s, z))
 			.max(T::WeightInfo::as_multi_complete(s, z))
 			.saturating_add(*max_weight)
